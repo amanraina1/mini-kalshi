@@ -1,6 +1,6 @@
 import type { Response } from "express";
 import prisma from "../db";
-import type { AuthenticatedRequest } from "../types/authenticatedRequest.type";
+import type { AuthenticatedRequest } from "../types/request";
 
 async function handleOnRamp(req: AuthenticatedRequest, res: Response) {
     const { userId } = req;

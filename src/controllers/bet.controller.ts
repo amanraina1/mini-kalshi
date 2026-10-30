@@ -2,7 +2,7 @@ import type { Response } from "express";
 import prisma from "../db";
 import { createBetSchema } from "../validations/schemas/bet.schema";
 import { validate } from "../validations/validator";
-import type { AuthenticatedRequest } from "../types/authenticatedRequest.type";
+import type { AuthenticatedRequest } from "../types/request";
 
 async function getBets(req: AuthenticatedRequest, res: Response) {
 
