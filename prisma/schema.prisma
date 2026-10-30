@@ -24,7 +24,7 @@ model User {
   updatedAt       DateTime      @map("updated_at")    @updatedAt
 
   markets         Market[]
-  // stockBalances   StockBalance[]
+  stockBalances   StockBalance[]
   // eventLogs       EventLog[]
   // orders          Order[]
 
@@ -50,7 +50,7 @@ model Market {
 
   creator       User            @relation(fields: [creatorId], references: [id])
 
-  // stockBalances StockBalance[]
+  stockBalances StockBalance[]
   // eventLohs     EventLog[]
   // orders        Order[]
 
@@ -67,23 +67,23 @@ enum Outcome {
   no
 }
 
-// model StockBalance {
-//   id            String        @id                     @default(uuid())
-//   marketId      String        @map("market_id")
-//   userId        String        @map("user_id")
-//   yesQty        Int           @map("yes_qty")         @default(0)
-//   noQty         Int           @map("no_qty")          @default(0)
-//   lockedYesQty  Int           @map("locked_yes_qty")  @default(0)
-//   lockedNoQty   Int           @map("locked_no_qty")   @default(0)
-//   updatedAt     DateTime      @map("updated_at")      @updatedAt
+model StockBalance {
+  id            String        @id                     @default(uuid())
+  marketId      String        @map("market_id")
+  userId        String        @map("user_id")
+  yesQty        Int           @map("yes_qty")         @default(0)
+  noQty         Int           @map("no_qty")          @default(0)
+  lockedYesQty  Int           @map("locked_yes_qty")  @default(0)
+  lockedNoQty   Int           @map("locked_no_qty")   @default(0)
+  updatedAt     DateTime      @map("updated_at")      @updatedAt
 
-//   user        User          @relation(fields: [userId], references: [id])
-//   market      Market        @relation(fields: [marketId], references: [id])
+  user        User          @relation(fields: [userId], references: [id])
+  market      Market        @relation(fields: [marketId], references: [id])
 
-//   @@unique([marketId, userId])
-//   @@index([userId])
-//   @@map("stock_balance")
-// }
+  @@unique([marketId, userId])
+  @@index([userId])
+  @@map("stock_balance")
+}
 
 // model EventLog {
 //   id         String           @id                 @default(uuid())

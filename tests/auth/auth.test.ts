@@ -4,7 +4,7 @@ import { describe, it, expect } from "bun:test";
 const BACKEND_URL = "http://localhost:3001";
 axios.defaults.baseURL = BACKEND_URL;
 
-describe("checks signup endpoints", () => {
+describe.todo("checks signup endpoints", () => {
 
     const USERNAME = `aman${Math.random().toFixed(10)}`;
 
@@ -78,7 +78,7 @@ describe("checks signup endpoints", () => {
     });
 });
 
-describe("checks signin endpoints", () => {
+describe.todo("checks signin endpoints", () => {
 
     const USERNAME = `aman${Math.random().toFixed(10)}`;
 

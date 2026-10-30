@@ -7,7 +7,6 @@ import { signToken } from "../utils/helpers";
 
 async function signin(req: Request, res: Response) {
     const result = validate(authSchema, req.body);
-    console.log(result)
 
     if(!result.success) {
         return res.status(411).json({success: false, errors: result.errors});
@@ -79,7 +78,6 @@ async function signup(req: Request, res: Response) {
         return res.status(201).json({success: true, message: "User created successfully", user: finalResult});
 
     } catch (error) {
-        console.log("errorrrr => ", error);
 
         if(error instanceof Error) {
             return res.status(500).json({message: "Something went wrong", error: error.message});

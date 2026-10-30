@@ -7,7 +7,7 @@ async function createMarket(req: Request, res: Response) {
     const result = validate(marketSchema, req.body);
     
     if(!result.success) {
-        return res.status(400).json({success: false, errors: result.errors});
+        return res.status(412).json({success: false, errors: result.errors});
     }
 
     const { title } = result.data;
@@ -85,7 +85,7 @@ async function updateMarket(req: Request, res: Response) {
         return res.status(400).json({success: false, errors: result.errors});
     }
 
-    const { title } = result;
+    const { title } = result.data;
 
     try {
         const market = await prisma.market.update({
