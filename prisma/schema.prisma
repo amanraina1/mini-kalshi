@@ -85,94 +85,94 @@ model StockBalance {
   @@map("stock_balance")
 }
 
-// model EventLog {
-//   id         String           @id                 @default(uuid())
-//   userId     String           @map("user_id")
-//   marketId   String?          @map("market_id")
-//   fillId     String?          @map("fill_id")
-//   qty        Int              @default(0)
-//   cashDelta  Int              @map("cash_delta")  @default(0)
-//   yesDelta   Int              @map("yes_delta")   @default(0)
-//   noDelta    Int              @map("no_delta")    @default(0)
-//   type       EventLogType
-//   price      Int?
-//   createdAt  DateTime         @map("created_at")  @default(now())
+model EventLog {
+  id         String           @id                 @default(uuid())
+  userId     String           @map("user_id")
+  marketId   String?          @map("market_id")
+  fillId     String?          @map("fill_id")
+  qty        Int              @default(0)
+  cashDelta  Int              @map("cash_delta")  @default(0)
+  yesDelta   Int              @map("yes_delta")   @default(0)
+  noDelta    Int              @map("no_delta")    @default(0)
+  type       EventLogType
+  price      Int?
+  createdAt  DateTime         @map("created_at")  @default(now())
 
-//   user       User             @relation(fields: [userId], references: [id])
-//   market     Market?          @relation(fields: [marketId], references: [id])
-//   fill       Fill?            @relation(fields: [fillId], references: [id])
+  user       User             @relation(fields: [userId], references: [id])
+  market     Market?          @relation(fields: [marketId], references: [id])
+  fill       Fill?            @relation(fields: [fillId], references: [id])
 
-//   @@unique([fillId, userId])
-//   @@map("event_log")
-// }
+  @@unique([fillId, userId])
+  @@map("event_log")
+}
 
-// enum EventLogType {
-//   on_ramp   // deposit
-//   withdraw
-//   split
-//   merge
-//   buy
-//   sell
-//   settled
-// }
+enum EventLogType {
+  on_ramp   // deposit
+  withdraw
+  split
+  merge
+  buy
+  sell
+  settled
+}
 
-// model Order {
-//   id          String      @id                 @default(uuid())
-//   marketId    String      @map("market_id")
-//   userId      String      @map("user_id")
-//   side        OrderSide // buy/sell
-//   contract    ContractType // yes/no
-//   price       Int
-//   qty         Int
-//   filledQty   Int         @map("filled_qty") @default(0)
-//   status      OrderStatus @default(open)
-//   createdAt   DateTime    @map("created_at")  @default(now())
-//   updatedAt   DateTime    @map("updated_at")  @updatedAt
+model Order {
+  id          String      @id                 @default(uuid())
+  marketId    String      @map("market_id")
+  userId      String      @map("user_id")
+  side        OrderSide // buy/sell
+  contract    ContractType // yes/no
+  price       Int
+  qty         Int
+  filledQty   Int         @map("filled_qty") @default(0)
+  status      OrderStatus @default(open)
+  createdAt   DateTime    @map("created_at")  @default(now())
+  updatedAt   DateTime    @map("updated_at")  @updatedAt
 
-//   market      Market      @relation(fields: [marketId], references: [id])
-//   user        User        @relation(fields: [userId], references: [id])
-//   makerFills  Fill[]      @relation("maker")
-//   takerFills  Fill[]      @relation("taker")
+  market      Market      @relation(fields: [marketId], references: [id])
+  user        User        @relation(fields: [userId], references: [id])
+  makerFills  Fill[]      @relation("maker")
+  takerFills  Fill[]      @relation("taker")
 
-//   @@map("order")
-// }
+  @@map("order")
+}
 
-// enum OrderSide {
-//   buy
-//   sell
-// }
+enum OrderSide {
+  buy
+  sell
+}
 
-// enum ContractType {
-//   yes
-//   no
-// }
+enum ContractType {
+  yes
+  no
+}
 
-// enum OrderStatus {
-//   open
-//   cancelled
-//   filled
-//   partial
-// }
+enum OrderStatus {
+  open
+  cancelled
+  filled
+  partial
+}
 
-// model Fill {
-//   id             String        @id                     @default(uuid())
-//   makerOrderId   String        @map("maker_order_id")
-//   takerOrderId   String        @map("taker_order_id")
-//   kind           FillKind
-//   price          Int
-//   qty            Int
-//   createdAt      DateTime      @map("created_at")      @default(now())
+model Fill {
+  id             String        @id                     @default(uuid())
+  makerOrderId   String        @map("maker_order_id")
+  takerOrderId   String        @map("taker_order_id")
+  kind           FillKind
+  price          Int
+  qty            Int
+  createdAt      DateTime      @map("created_at")      @default(now())
 
-//   eventLogs      EventLog[]
+  eventLogs      EventLog[]
 
-//   makerOrder     Order         @relation("maker", fields: [makerOrderId], references: [id])
-//   takerOrder     Order         @relation("taker", fields: [takerOrderId], references: [id])
+  makerOrder     Order         @relation("maker", fields: [makerOrderId], references: [id])
+  takerOrder     Order         @relation("taker", fields: [takerOrderId], references: [id])
 
-//   @@map("fill")
-// }
+  @@map("fill")
+}
 
-// enum FillKind {
-//   transfer
-//   mint
-//   burn
-// }
+enum FillKind {
+  transfer
+  mint
+  burn
+}
