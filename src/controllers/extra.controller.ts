@@ -1,8 +1,7 @@
-import type { Response } from "express";
+import type { Request, Response } from "express";
 import prisma from "../db";
-import type { AuthenticatedRequest } from "../types/request";
 
-async function handleOnRamp(req: AuthenticatedRequest, res: Response) {
+async function handleOnRamp(req: Request, res: Response) {
     const { userId } = req;
 
     const { amount } = req.body;
@@ -53,7 +52,7 @@ async function handleOnRamp(req: AuthenticatedRequest, res: Response) {
     }
 }
 
-async function handleTransactions(req: AuthenticatedRequest, res: Response) {
+async function handleTransactions(req: Request, res: Response) {
 
     const { userId } = req;
 
@@ -76,7 +75,7 @@ async function handleTransactions(req: AuthenticatedRequest, res: Response) {
     }
 }
 
-async function handleProfile(req: AuthenticatedRequest, res: Response) {
+async function handleProfile(req: Request, res: Response) {
 
     const { userId } = req;
 

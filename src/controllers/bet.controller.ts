@@ -1,10 +1,9 @@
-import type { Response } from "express";
+import type { Request, Response } from "express";
 import prisma from "../db";
 import { createBetSchema } from "../validations/schemas/bet.schema";
 import { validate } from "../validations/validator";
-import type { AuthenticatedRequest } from "../types/request";
 
-async function getBets(req: AuthenticatedRequest, res: Response) {
+async function getBets(req: Request, res: Response) {
 
     const { userId } = req;
 
@@ -26,7 +25,7 @@ async function getBets(req: AuthenticatedRequest, res: Response) {
     }
 }
 
-async function makeBet(req: AuthenticatedRequest, res: Response) {
+async function makeBet(req: Request, res: Response) {
 
     const { userId } = req;
 

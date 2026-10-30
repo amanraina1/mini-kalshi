@@ -1,9 +1,9 @@
+import type { Request, Response } from "express";
 import prisma from "../db";
 import bcrypt from "bcryptjs";
 import { validate } from "../validations/validator";
 import { authSchema } from "../validations/schemas/auth.schema";
 import { signToken } from "../utils/helpers";
-import type { Request, Response } from "express";
 
 async function signin(req: Request, res: Response) {
     const result = validate(authSchema, req.body);
