@@ -25,8 +25,8 @@ model User {
 
   markets         Market[]
   stockBalances   StockBalance[]
-  // eventLogs       EventLog[]
-  // orders          Order[]
+  eventLogs       EventLog[]
+  orders          Order[]
 
   @@map("user")
 }
@@ -51,8 +51,8 @@ model Market {
   creator       User            @relation(fields: [creatorId], references: [id])
 
   stockBalances StockBalance[]
-  // eventLohs     EventLog[]
-  // orders        Order[]
+  eventLohs     EventLog[]
+  orders        Order[]
 
   @@map("market")
 }
@@ -155,18 +155,18 @@ enum OrderStatus {
 }
 
 model Fill {
-  id             String        @id                     @default(uuid())
-  makerOrderId   String        @map("maker_order_id")
-  takerOrderId   String        @map("taker_order_id")
+  id             String         @id                     @default(uuid())
+  makerOrderId   String?        @map("maker_order_id")
+  takerOrderId   String?        @map("taker_order_id")
   kind           FillKind
-  price          Int
+  price          Int?
   qty            Int
-  createdAt      DateTime      @map("created_at")      @default(now())
+  createdAt      DateTime       @map("created_at")      @default(now())
 
   eventLogs      EventLog[]
 
-  makerOrder     Order         @relation("maker", fields: [makerOrderId], references: [id])
-  takerOrder     Order         @relation("taker", fields: [takerOrderId], references: [id])
+  makerOrder     Order?         @relation("maker", fields: [makerOrderId], references: [id])
+  takerOrder     Order?         @relation("taker", fields: [takerOrderId], references: [id])
 
   @@map("fill")
 }
