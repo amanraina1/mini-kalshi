@@ -1,7 +1,23 @@
 import { PrismaClient, OrderSide, ContractType, OrderStatus, FillKind, Prisma } from "@prisma/client";
 
 export class MatchingEngine {
-  constructor(private prisma: PrismaClient) {}
+
+  private static instance: MatchingEngine;
+  private prisma: PrismaClient;
+
+  constructor(prismaClient: PrismaClient) {
+    this.prisma = prismaClient
+  }
+
+  public static getInstance(prismaClient?: PrismaClient): MatchingEngine {
+    if (!MatchingEngine.instance) {
+      if (!prismaClient) {
+        throw new Error("PrismaClient is required for the initial setup of MatchingEngine.");
+      }
+      MatchingEngine.instance = new MatchingEngine(prismaClient);
+    }
+    return MatchingEngine.instance;
+  }
 
   async placeOrder(input: {
     userId: string;
@@ -157,6 +173,94 @@ export class MatchingEngine {
         where: { id: orderId },
         data: { status: OrderStatus.cancelled },
       });
+    });
+  }
+
+  async resolveMarket(marketId: string, adminId: string, winningOutcome: "yes" | "no") {
+    return await this.prisma.$transaction(async (tx) => {
+      // 1. Verify market exists and is still pending
+      const market = await tx.market.findUnique({ where: { id: marketId } });
+      if (!market) throw new Error("Market not found");
+      if (market.resolution === "resolved") throw new Error("Market is already resolved");
+
+      // 2. Optional: Verify admin role (assuming you pass user or check role)
+      const admin = await tx.user.findUnique({ where: { id: adminId } });
+      if (!admin || admin.role !== "admin") {
+        throw new Error("Unauthorized: Only admins can resolve markets");
+      }
+
+      // 3. Update Market status to resolved and set outcome
+      const updatedMarket = await tx.market.update({
+        where: { id: marketId },
+        data: {
+          resolution: "resolved",
+          outcome: winningOutcome,
+          resolvedAt: new Date(),
+        },
+      });
+
+      // 4. Cancel all open or partial orders for this market so locked funds/shares are released
+      const openOrders = await tx.order.findMany({
+        where: { marketId, status: { in: ["open", "partial"] } },
+      });
+
+      for (const order of openOrders) {
+        const unfilledQty = order.qty - order.filledQty;
+        if (order.side === "buy") {
+          await tx.user.update({
+            where: { id: order.userId },
+            data: { lockedBalance: { decrement: unfilledQty * order.price } },
+          });
+        } else {
+          await tx.stockBalance.update({
+            where: { marketId_userId: { marketId, userId: order.userId } },
+            data: {
+              lockedYesQty: order.contract === "yes" ? { decrement: unfilledQty } : undefined,
+              lockedNoQty: order.contract === "no" ? { decrement: unfilledQty } : undefined,
+            },
+          });
+        }
+      }
+
+      await tx.order.updateMany({
+        where: { marketId, status: { in: ["open", "partial"] } },
+        data: { status: "cancelled" },
+      });
+
+      // 5. Fetch all stock balances for this market to distribute payouts
+      const stockBalances = await tx.stockBalance.findMany({
+        where: { marketId },
+      });
+
+      // 6. Payout winning holders: 1 winning share = 100 cents (₹1)
+      for (const sb of stockBalances) {
+        const winningQty = winningOutcome === "yes" ? sb.yesQty : sb.noQty;
+        
+        if (winningQty > 0) {
+          const payoutCents = winningQty * 100; // 100 cents per winning contract
+
+          await tx.user.update({
+            where: { id: sb.userId },
+            data: { balance: { increment: payoutCents } },
+          });
+
+          // Record payout log in EventLog
+          await tx.eventLog.create({
+            data: {
+              userId: sb.userId,
+              marketId,
+              qty: winningQty,
+              cashDelta: payoutCents,
+              type: "settled",
+            },
+          });
+        }
+      }
+
+      return updatedMarket;
+    }, {
+      maxWait: 5000, // default max wait
+      timeout: 10000
     });
   }
 }

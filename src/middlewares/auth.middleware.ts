@@ -17,16 +17,6 @@ function veriyAuth(req: Request, res: Response, next: NextFunction) {
     }
 }
 
-function verifyAdmin(req: Request, res: Response, next: NextFunction) {
-    // if(!req.headers.adminToken) {
-    //     return res.status(400).json({message: "This is an admin route"});
-    // }
-    // TODO :: add logic in this middleware
-
-    next();
-}
-
 export {
-    veriyAuth,
-    verifyAdmin
+    veriyAuth
 }

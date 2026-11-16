@@ -1,10 +1,11 @@
 import { Router } from "express";
-import { handleDeposit, handleTransactions, handleWithdraw } from "../controllers/wallet.controller";
+import { WalletController } from "../controllers/wallet.controller";
 
 const router = Router();
+const walletController = new WalletController()
 
-router.post("/deposit", handleDeposit);
-router.post("/withdraw", handleWithdraw);
-router.post("/history", handleTransactions)
+router.post("/deposit", walletController.handleDeposit);
+router.post("/withdraw", walletController.handleWithdraw);
+router.post("/history", walletController.handleTransactions)
 
 export default router;

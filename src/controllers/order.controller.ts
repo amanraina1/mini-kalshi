@@ -1,11 +1,15 @@
 import type { Request, Response } from "express";
-import type { MatchingEngine } from "../services/MatchingEngine";
+import { MatchingEngine } from "../services/MatchingEngine";
 import { validate } from "../validations/validator";
 import { cancelOrderSchema, createOrderSchema } from "../validations/schemas/order.schema";
 
-export class MarketController {
+export class OrderController {
 
-    constructor (private readonly engineService: MatchingEngine) {}
+    private matchingEngine: MatchingEngine
+
+    constructor () {
+        this.matchingEngine = MatchingEngine.getInstance()
+    }
 
     async createOrder(req: Request, res: Response) {
 
@@ -19,7 +23,7 @@ export class MarketController {
 
             const { userId, marketId, side, contract, price, qty } = result.data;
 
-            const order = await this.engineService.placeOrder({ userId, marketId, side, contract, price, qty });
+            const order = await this.matchingEngine.placeOrder({ userId, marketId, side, contract, price, qty });
 
             return res.status(201).json({ success: true, order });
 
@@ -41,7 +45,7 @@ export class MarketController {
 
             const { userId, id } = result.data;
 
-            const order = await this.engineService.cancelOrder(id.toString(), userId);
+            const order = await this.matchingEngine.cancelOrder(id.toString(), userId);
 
             return res.status(200).json({ success: true, order });
 
