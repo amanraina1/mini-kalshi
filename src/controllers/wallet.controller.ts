@@ -77,7 +77,7 @@ export class WalletController {
                 })
             ]);
 
-            return res.status(200).json({success: false, message: "Balance updated successfully"});
+            return res.status(200).json({success: true, message: "Balance updated successfully"});
 
         } catch (error) {
 
@@ -85,7 +85,7 @@ export class WalletController {
                 return res.status(500).json({message: "Something went wrong", error: error.message});
             }
 
-            console.error("An unexpected error occurred", error);
+            return res.status(500).json({ message: "An unexpected error occurred" });
         }
     }
 
@@ -128,20 +128,19 @@ export class WalletController {
                     data: {
                         userId: userId,
                         type: "withdraw",
-                        price: amount
+                        price: -amount
                     }
                 })
             ]);
 
-            return res.status(200).json({success: false, message: "Balance updated successfully"});
+            return res.status(200).json({success: true, message: "Balance updated successfully"});
 
         } catch (error) {
 
             if(error instanceof Error) {
                 return res.status(500).json({message: "Something went wrong", error: error.message});
             }
-
-            console.error("An unexpected error occurred", error);
+            return res.status(500).json({ message: "An unexpected error occurred" });
         }
     }
 
@@ -163,8 +162,7 @@ export class WalletController {
             if(error instanceof Error) {
                 return res.status(500).json({message: "Something went wrong", error: error.message});
             }
-
-            console.error("An unexpected error occurred", error);
+            return res.status(500).json({ message: "An unexpected error occurred" });
         }
     }
 }

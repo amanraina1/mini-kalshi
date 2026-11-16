@@ -40,7 +40,7 @@ export class AuthController {
                 return res.status(500).json({message: "Something went wrong", error: error.message});
             }
 
-            console.error("An unexpected error occurred", error);
+            return res.status(500).json({ message: "An unexpected error occurred" });
         }
     }
 
@@ -54,7 +54,7 @@ export class AuthController {
         const { username, password } = result.data;
 
         try {
-            const user = await prisma.user.findFirst({
+            const user = await prisma.user.findUnique({
                 where: {
                     username
                 }
@@ -92,7 +92,7 @@ export class AuthController {
         const userId = req?.userId;
 
         if(!userId) {
-            return res.status(401).json({message: "You need to be logged in to iew the profile"})
+            return res.status(401).json({message: "You need to be logged in to view the profile"})
         }
 
         try {

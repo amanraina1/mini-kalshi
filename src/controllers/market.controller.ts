@@ -39,8 +39,7 @@ export class MarketController {
             return res.status(500).json({message: "Something went wrong", error: error.message});
         }
 
-        console.error("An unexpected error occurred", error);
-        return;
+        return res.status(500).json({ success: false, message: "An unexpected error occurred" });
     }
 }
 
@@ -49,7 +48,7 @@ export class MarketController {
         try {
             const markets = await prisma.market.findMany();
 
-            return res.status(201).json({success: true, markets});
+            return res.status(200).json({success: true, markets});
 
         } catch (error) {
 
@@ -57,8 +56,7 @@ export class MarketController {
                 return res.status(500).json({message: "Something went wrong", error: error.message});
             }
 
-            console.error("An unexpected error occurred", error);
-            return;
+            return res.status(500).json({ success: false, message: "An unexpected error occurred" });
         }
     }
 
@@ -74,7 +72,7 @@ export class MarketController {
 
             const market = await prisma.market.findFirst({
                 where: {
-                    id: id
+                    id: id.toString()
                 }
             });
 
@@ -86,8 +84,7 @@ export class MarketController {
                 return res.status(500).json({message: "Something went wrong", error: error.message});
             }
 
-            console.error("An unexpected error occurred", error);
-            return;
+            return res.status(500).json({ success: false, message: "An unexpected error occurred" });
         }
     }
 
@@ -102,7 +99,7 @@ export class MarketController {
                 }
             });
 
-            return res.status(201).json({success: true, markets});
+            return res.status(200).json({success: true, markets});
 
         } catch (error) {
 
@@ -110,8 +107,7 @@ export class MarketController {
                 return res.status(500).json({message: "Something went wrong", error: error.message});
             }
 
-            console.error("An unexpected error occurred", error);
-            return;
+            return res.status(500).json({ success: false, message: "An unexpected error occurred" });
         }
     }
 
@@ -138,15 +134,14 @@ export class MarketController {
                 }
             });
 
-            return res.status(201).json({success: true, market});
+            return res.status(200).json({success: true, market});
         } catch (error) {
 
             if(error instanceof Error) {
                 return res.status(500).json({message: "Something went wrong", error: error.message});
             }
 
-            console.error("An unexpected error occurred", error);
-            return;
+            return res.status(500).json({ success: false, message: "An unexpected error occurred" });
         }
     }
 
@@ -254,7 +249,17 @@ export class MarketController {
                 }),
 
                 // 8. Add the entry in the event_logs table
-                // TODO ::
+                prisma.eventLog.create({
+                    data: {
+                        userId,
+                        marketId,
+                        qty,
+                        cashDelta: -amountRequired,
+                        yesDelta: qty,
+                        noDelta: qty,
+                        type: "split"
+                    }
+                })
             ]);
 
             return res.status(200).json({success: true, message: "Split happened successfully"})
@@ -265,8 +270,7 @@ export class MarketController {
                 return res.status(500).json({message: "Something went wrong", error: error.message});
             }
 
-            console.error("An unexpected error occurred", error);
-            return;
+            return res.status(400).json({ success: false, error: "An unexpected error occurred" })
         }
     }
 
@@ -368,7 +372,17 @@ export class MarketController {
                 }),
                 
                 // 8. Add the entry in the event_logs table
-                // TODO ::
+                prisma.eventLog.create({
+                    data: {
+                        userId,
+                        marketId,
+                        qty,
+                        cashDelta: amountRequired,
+                        yesDelta: -qty,
+                        noDelta: -qty,
+                        type: "merge"
+                    }
+                })
             ]);
 
             return res.status(200).json({success: true, message: "Merge happened successfully"})
@@ -379,9 +393,7 @@ export class MarketController {
                 return res.status(500).json({message: "Something went wrong", error: error.message});
             }
 
-            // TODO :: 
-            console.error("An unexpected error occurred", error);
-            return;
+            return res.status(400).json({ success: false, error: "An unexpected error occurred" })
         }
     }
 
@@ -405,8 +417,21 @@ export class MarketController {
                 message: `Market successfully resolved to ${outcome.toUpperCase()}`,
                 market,
             });
-            } catch (error: any) {
-            return res.status(400).json({ success: false, error: error.message });
-            }
+        } catch (error: any) {
+
+            const clientErrors = [
+                "Market not found", 
+                "Market is already resolved", 
+                "Unauthorized: Only admins can resolve markets"
+            ];
+
+            const isClientError = clientErrors.includes(error.message);
+            const statusCode = isClientError ? 400 : 500;
+
+            return res.status(statusCode).json({ 
+                success: false, 
+                error: error.message || "An unexpected error occurred" 
+            });
+        }
     }
 }

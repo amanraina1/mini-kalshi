@@ -1,22 +1,30 @@
 import type { NextFunction, Request, Response } from "express";
 import { verify } from "../utils/helpers";
 
-function veriyAuth(req: Request, res: Response, next: NextFunction) {
-    if(!req.headers.token) {
-        return res.status(400).json({message: "No token found in the headers"});
+function verifyAuth(req: Request, res: Response, next: NextFunction) {
+
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        return res.status(401).json({ message: "No token found or invalid format" });
     }
 
-    const token = req.headers.token as string;
+    const token = authHeader.split(" ")[1];
+
+    if(!token) {
+        return res.status(401).json({ message: "No token found or invalid format" });
+    }
 
     try {
-        const payload = verify(token);
+        const payload = verify(token) as { userId: string };
         req.userId = payload.userId;
         next();
     } catch (e) {
-        res.status(400).json({message: "Unauthorized"})
+        return res.status(401).json({ message: "Unauthorized or expired token" });
     }
+
 }
 
 export {
-    veriyAuth
+    verifyAuth
 }
