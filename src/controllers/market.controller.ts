@@ -53,6 +53,35 @@ async function getAllMarkets(req: Request, res: Response) {
     }
 }
 
+async function getMarketDetails(req: Request, res: Response) {
+
+    const { id } = req.params;
+
+    if(!id) {
+        return res.status(400).json({message: "Id is reuired"})
+    }
+
+    try {
+
+        const market = await prisma.market.findFirst({
+            where: {
+                id: id
+            }
+        });
+
+        return res.status(200).json({success: true, market});
+
+    } catch (error) {
+
+        if(error instanceof Error) {
+            return res.status(500).json({message: "Something went wrong", error: error.message});
+        }
+
+        console.error("An unexpected error occurred", error);
+        return;
+    }
+}
+
 async function getMyMarkets(req: Request, res: Response) {
 
     const { userId } = req;
@@ -350,6 +379,9 @@ async function mergePairs(req: Request, res: Response) {
 export {
     createMarket,
     getAllMarkets,
+    getMarketDetails,
     getMyMarkets,
-    updateMarket
+    updateMarket,
+    splitPairs,
+    mergePairs
 }

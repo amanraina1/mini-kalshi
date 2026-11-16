@@ -86,9 +86,50 @@ async function signup(req: Request, res: Response) {
     }
 }
 
+async function handleProfile(req: Request, res: Response) {
+
+    const userId = req?.userId;
+
+    if(!userId) {
+        return res.status(401).json({message: "You need to be logged in to iew the profile"})
+    }
+
+    try {
+
+        const [user, transactions] = await prisma.$transaction([
+
+            prisma.user.findFirst({
+                where: {
+                    id: userId
+                },
+                omit: {
+                    password: true
+                }
+            }),
+
+            prisma.eventLog.findMany({
+                where: {
+                    userId: userId
+                }
+            })
+        ]);
+
+        return res.status(200).json({success: true, data: {user, transactions}});
+
+    } catch (error) {
+
+        if(error instanceof Error) {
+            return res.status(500).json({message: "Something went wrong", error: error.message});
+        }
+
+        console.error("An unexpected error occurred", error);
+    }
+}
+
 export {
     signin,
-    signup
+    signup,
+    handleProfile
 }
 
 

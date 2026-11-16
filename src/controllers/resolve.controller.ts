@@ -37,16 +37,14 @@ async function resolve(req: Request, res: Response) {
             return res.status(400).json({success: false, message: "Market doesn't exist"});
         }
 
-        let betAmount = await prisma.bet.aggregate({
+        const betAmount = await prisma.order.aggregate({
             where: {
-                market_id: market.id
+                marketId: market.id
             },
             _sum: {
-                bet_amount: true
+                price: true
             }
         });
-
-        betAmount = betAmount._sum.bet_amount ?? 0;
 
         // now check who won
         if(market.bet === result) {
