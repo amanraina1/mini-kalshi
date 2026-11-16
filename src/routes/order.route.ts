@@ -1,10 +1,13 @@
 import { Router } from "express";
-import { createOrder, getOrderBook, cancelOrder } from "../controllers/order.controller";
+import { MarketController } from "../controllers/order.controller";
+import { MatchingEngine } from "../services/MatchingEngine";
+import prisma from "../db";
 
-const router = Router()
+const router = Router();
+const engineService = new MatchingEngine(prisma)
+const marketController = new MarketController(engineService)
 
-router.post("/", createOrder)
-router.get("/:id/orderbook", getOrderBook)
-router.delete("/:id", cancelOrder)
+router.post("/", marketController.createOrder)
+router.delete("/:id", marketController.cancelOrder)
 
 export default router;

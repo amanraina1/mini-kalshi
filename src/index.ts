@@ -13,7 +13,6 @@ const PORT = process.env.PORT || 3000;
 
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/market", veriyAuth, marketRoutes);
-// Pending
 app.use("/api/v1/wallet", veriyAuth, walletRoutes);
 app.use("/api/v1/order", veriyAuth, orderRoutes)
 
